@@ -1,0 +1,12 @@
+<ion-view  title="List video">
+  <ion-content >
+    <ion-list>
+      <a ng-repeat="video in videos " class="videoItem item item-thumbnail-left" href="#" ng-click="videoClick(video)" ng-href="#/tab/videoplayer">
+        <img src="{{video.thumbnail}}" style="object-fit: cover;"></img>
+        <h2 style="">{{video.title}}</h2>
+        <p>{{video.views}} lượt xem</p>
+        <p>{{video.time}}</p>
+      </a>
+    </ion-list>
+  </ion-content>
+</ion-view>
