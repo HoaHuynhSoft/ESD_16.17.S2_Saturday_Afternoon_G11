@@ -21,6 +21,7 @@ angular.module('app.controllers', [])
   $scope.filterStr = '';
   $scope.isSearched = false;
   $scope.isFounded = false;
+  $scope.isFoundedByAdvance = false;
    $scope.$on('$ionicView.enter', function(ev) {
      $scope.loadAll();
    });
@@ -57,21 +58,51 @@ angular.module('app.controllers', [])
       $scope.isSearched = false;
       $scope.filterStr = '';
       $scope.isFounded = false;
+      isFoundedByAdvance = false; 
       return;
     }
     isFounded = false;
+    isFoundedByAdvance = false; 
     var BreakException = {};
     try{
       $scope.videos.forEach(function(item, index) {
         var subArr = JSON.parse(item.sub);
-        subArr.forEach(function(subItem, subIndex) {   
-          console.log(subItem.__text.toLowerCase());
-          if (subItem.__text.toLowerCase().indexOf($scope.searchStr.toLowerCase()) >-1){          
-            isFounded = true;                       
-            $scope.resultVideo = item;
-            $scope.resultSub = subItem;
-            throw BreakException;
-          }     
+        subArr.forEach(function(subItem, subIndex) {  
+        var textTemp ='';
+        textTemp = subItem.__text.toLowerCase()
+                                  .replace(/(\r\n|\n|\r)/gm," ")
+                                  .replace(/  +/g, ' ') .replace('.', '');
+        console.log(textTemp);  
+        if (textTemp.indexOf($scope.searchStr.toLowerCase()) >-1){    
+          console.log('Look');      
+          isFounded = true;   
+          isFoundedByAdvance = false;                     
+          $scope.resultVideo = item;
+          $scope.resultSub = subItem;
+          throw BreakException;
+        }
+        // search advance
+         if(subIndex != subArr.length) {
+          textTemp = subItem.__text.toLowerCase()
+                                    .replace(/(\r\n|\n|\r)/gm," ")
+                                    .replace(/  +/g, ' ')
+                                    .replace('.', '')
+                                    .replace(',', '');
+          textTemp = textTemp + ' ' +subArr[subIndex + 1].__text.toLowerCase()
+                                                          .replace(/(\r\n|\n|\r)/gm," ")
+                                                          .replace(/  +/g, ' ')
+                                                          .replace('.', '')
+                                                          .replace(',', '');
+        }
+        if (textTemp.indexOf($scope.searchStr.toLowerCase()) >-1){    
+          console.log('Look advance');       
+          isFounded = true; 
+          isFoundedByAdvance = true;                      
+          $scope.resultVideo = item;
+          subItem.__text = textTemp;
+          $scope.resultSub = subItem;
+          throw BreakException;
+        }   
         });
       });
     } catch (e) {
@@ -88,6 +119,7 @@ angular.module('app.controllers', [])
   $scope.searchChange = function(){
     $scope.isSearched = false;
     $scope.isFounded = false;
+    isFoundedByAdvance = false; 
   }
   $scope.videoClick = function(video){
     if($scope.isSearched)
